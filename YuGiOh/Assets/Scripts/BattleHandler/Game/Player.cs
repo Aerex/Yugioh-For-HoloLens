@@ -23,6 +23,11 @@ namespace Assets.Scripts.BattleHandler.Game
             get; internal set;
         }
 
+        internal GameManager myGm
+        {
+            get; set;
+        }
+
         /// <summary>
         /// The 40-60 cards the player is dueling with.
         /// </summary>
@@ -110,6 +115,46 @@ namespace Assets.Scripts.BattleHandler.Game
             MeReadOnly.FaceUpMonsters=toSet;
         }
 
+        internal void SendToHand(System.Object c, Zone z)
+        {
+            if (z == Zone.Graveyard)
+            {
+                if (GraveYard.Contains(c as Cards.Card))
+                {
+                    GraveYard.Remove(c as Cards.Card);
+                }
+            }
+            else if (z == Zone.Monster)
+            {
+                if (FaceDownCardsInMonsterZone.Contains(c as MonsterCard))
+                {
+                    FaceDownCardsInMonsterZone.Remove(c as MonsterCard);
+                    MeReadOnly.NumberOfFaceDownCardsInMonsterZone = MeReadOnly.NumberOfFaceDownCardsInMonsterZone - 1;
+                }
+                else if (MeReadOnly.FaceUpMonsters.Contains(c as MonsterCard))
+                {
+                    List<MonsterCard> toRemoveFrom = MeReadOnly.FaceUpMonsters;
+                    toRemoveFrom.Remove(c as MonsterCard);
+                    MeReadOnly.FaceUpMonsters = toRemoveFrom;
+                }
+            }
+            else if (z == Zone.SpellTrap)
+            {
+                if (FaceDownTraps.Contains(c as SpellAndTrapCard))
+                {
+                    FaceDownTraps.Remove(c as SpellAndTrapCard);
+                    MeReadOnly.NumberOfFaceDownTraps--;
+                }
+                else if (MeReadOnly.FaceUpTraps.Contains(c as SpellAndTrapCard))
+                {
+                    List<SpellAndTrapCard> toRemoveFrom = MeReadOnly.FaceUpTraps;
+                    toRemoveFrom.Remove(c as SpellAndTrapCard);
+                    MeReadOnly.FaceUpTraps = toRemoveFrom;
+                }
+            }
+            Hand.Add(c as Cards.Card);
+        }
+
         internal void SendToGraveYard(System.Object c, Zone z)
         {
             if (z == Zone.Hand)
@@ -125,12 +170,22 @@ namespace Assets.Scripts.BattleHandler.Game
                 if (FaceDownCardsInMonsterZone.Contains(c as MonsterCard))
                 {
                     FaceDownCardsInMonsterZone.Remove(c as MonsterCard);
+                    SpellAndTrapCard attachedTo = (c as MonsterCard).EquippedTo;
+                    if(attachedTo!=null)
+                    {
+                        SendToGraveYard(attachedTo, Zone.SpellTrap);
+                    }
                     MeReadOnly.NumberOfFaceDownCardsInMonsterZone=MeReadOnly.NumberOfFaceDownCardsInMonsterZone - 1;
                 }
                 else if (MeReadOnly.FaceUpMonsters.Contains(c as MonsterCard))
                 {
                     List<MonsterCard> toRemoveFrom = MeReadOnly.FaceUpMonsters;
                     toRemoveFrom.Remove(c as MonsterCard);
+                    SpellAndTrapCard attachedTo = (c as MonsterCard).EquippedTo;
+                    if (attachedTo != null)
+                    {
+                        SendToGraveYard(attachedTo, Zone.SpellTrap);
+                    }
                     MeReadOnly.FaceUpMonsters=toRemoveFrom;
                 }
             }
@@ -200,6 +255,9 @@ namespace Assets.Scripts.BattleHandler.Game
             MeReadOnly = new ReadOnlyPlayer();
             MeReadOnly.UserName=userName;
             Hand = new List<Cards.Card>();
+            GraveYard = new List<Cards.Card>();
+            FaceDownTraps = new List<SpellAndTrapCard>();
+            FaceDownCardsInMonsterZone = new List<MonsterCard>();
         }
 
         public static Player MakePlayer(GameObject toAddTo, int userId, string userName)
@@ -209,6 +267,9 @@ namespace Assets.Scripts.BattleHandler.Game
             myPlayer.MeReadOnly = new ReadOnlyPlayer();
             myPlayer.MeReadOnly.UserName = userName;
             myPlayer.Hand = new List<Cards.Card>();
+            myPlayer.GraveYard = new List<Cards.Card>();
+            myPlayer.FaceDownTraps = new List<SpellAndTrapCard>();
+            myPlayer.FaceDownCardsInMonsterZone = new List<MonsterCard>();
             return myPlayer;
         }
 
@@ -219,8 +280,15 @@ namespace Assets.Scripts.BattleHandler.Game
         /// <returns>"" if successful. Error string if failed.</returns>
         public string NormalSummon(System.Object monsterToSummon)
         {
+
             if (monsterToSummon is MonsterCard && Hand.Contains(monsterToSummon as Cards.Card))
             {
+                Debug.Log("ID=" + id);
+                Debug.Log("game=" + MyCurrentGame);
+                Debug.Log("MeReadOnly=" + MeReadOnly);
+                Debug.Log("MonsterToSummon=" + monsterToSummon);
+                Debug.Log("FacedownCards=" + FaceDownCardsInMonsterZone.Count);
+                Debug.Log("FaceUpMonster=" + MeReadOnly.FaceUpMonsters.Count);
                 Result amIAllowedToSummon = MyCurrentGame.RequestNormalSummon(id, monsterToSummon, FaceDownCardsInMonsterZone.Count + MeReadOnly.FaceUpMonsters.Count);
                 if (amIAllowedToSummon.ToString().Equals("Success"))
                 {
@@ -231,9 +299,13 @@ namespace Assets.Scripts.BattleHandler.Game
                     return amIAllowedToSummon.ToString();
                 }
             }
+            else if(!(monsterToSummon is MonsterCard))
+            {
+                return "Card is not MonsterCard";
+            }
             else
             {
-                return "Either Card is not a monster or the card is not in your hand!";
+                return "Card is no longer in your hand!---"+(monsterToSummon as Cards.Card).CardName;
             }
         }
 
@@ -291,6 +363,44 @@ namespace Assets.Scripts.BattleHandler.Game
                         MeReadOnly.NumberOfCardsInHand--;
                     }
                 }
+                else if(stc.CardName.Equals("Two-Pronged Attack"))
+                {
+                    MonsterCard myOne = myGm.PromptForOneOfMyMonstersOnField();
+                    MonsterCard myTwo = myGm.PromptForOneOfMyMonstersOnField();
+                    MonsterCard possibleTheirsCard = null;
+                    int possibleTheirsIndex = -1;
+                    myGm.PromptForOneOfOpponentsMonstersOnField(out possibleTheirsCard, out possibleTheirsIndex);
+                    if(myOne!=myTwo && myOne!=null && myTwo!=null && possibleTheirsCard!=null)
+                    {
+                        amIAllowedToSummon = MyCurrentGame.RequestTwoProngedAttack(id, myOne, myTwo, possibleTheirsCard);
+                        if(amIAllowedToSummon==Result.Success)
+                        {
+                            SendToGraveYard(spellOrTrapToPlay, Zone.Hand);
+                        }
+                    }
+                    else
+                    {
+                        amIAllowedToSummon = Result.InvalidMove;
+                    }
+                }
+                else if(stc.CardName.Equals("De-Spell"))
+                {
+                    SpellAndTrapCard possibleTheirsCard = null;
+                    int possibleTheirsIndex = -1;
+                    myGm.PromptForOneOfOpponentsSpellsOrTrapsOnField(out possibleTheirsCard,out possibleTheirsIndex);
+                    if (possibleTheirsCard != null)
+                    {
+                        amIAllowedToSummon = MyCurrentGame.RequestDeSpell(id, possibleTheirsCard);
+                    }
+                    else if(possibleTheirsIndex!=-1)
+                    {
+                        amIAllowedToSummon = MyCurrentGame.RequestDeSpell(id, possibleTheirsIndex);
+                    }
+                    else
+                    {
+                        amIAllowedToSummon = Result.InvalidMove;
+                    }
+                }
                 else
                 {
                     amIAllowedToSummon = Result.InvalidMove;
@@ -321,11 +431,22 @@ namespace Assets.Scripts.BattleHandler.Game
                     {
                         MonsterCard equippingTo = FaceDownCardsInMonsterZone[i];
                         found = true;
-                        Result r = MyCurrentGame.RequestEquip(id, EquipableCard, ref equippingTo);
+                        SpellAndTrapCard stc;
+                        if(EquipableCard is SpellAndTrapCard)
+                        {
+                            stc = EquipableCard as SpellAndTrapCard;
+                        }
+                        else
+                        {
+                            return "Not a spell and trap card";
+                        }
+                        Result r = MyCurrentGame.RequestEquip(id, ref stc, ref equippingTo);
                         if (r == Result.Success)
                         {
                             FaceDownCardsInMonsterZone[i] = equippingTo;
-                            SendToGraveYard(EquipableCard, Zone.Hand);
+                            MeReadOnly.FaceUpTraps.Add(stc);
+                            Hand.Remove(EquipableCard as SpellAndTrapCard);
+                            //SendToGraveYard(EquipableCard, Zone.Hand);
                             return "";
                         }
                         else
@@ -342,12 +463,22 @@ namespace Assets.Scripts.BattleHandler.Game
                     {
                         found = true;
                         MonsterCard equippingTo = faceUpMonsters[i];
-                        Result r = MyCurrentGame.RequestEquip(id, EquipableCard, ref equippingTo);
+                        SpellAndTrapCard stc;
+                        if (EquipableCard is SpellAndTrapCard)
+                        {
+                            stc = EquipableCard as SpellAndTrapCard;
+                        }
+                        else
+                        {
+                            return "Not a spell and trap card";
+                        }
+                        Result r = MyCurrentGame.RequestEquip(id, ref stc, ref equippingTo);
                         if (r == Result.Success)
                         {
                             faceUpMonsters[i] = equippingTo;
                             MeReadOnly.FaceUpMonsters=faceUpMonsters;
-                            SendToGraveYard(EquipableCard, Zone.Hand);
+                            MeReadOnly.FaceUpTraps.Add(stc);
+                            Hand.Remove(EquipableCard as SpellAndTrapCard);
                             return "";
                         }
                         else
@@ -417,9 +548,9 @@ namespace Assets.Scripts.BattleHandler.Game
             }
         }
 
-        public string AttackFaceDownOpponent(MonsterCard attackingCard, Mode faceDownCardsMode)
+        public string AttackFaceDownOpponent(MonsterCard attackingCard)
         {
-            Result r = MyCurrentGame.RequestAttackOnFaceDownCard(id, attackingCard, faceDownCardsMode);
+            Result r = MyCurrentGame.RequestAttackOnFaceDownCard(id, attackingCard);
             if (r.Equals(Result.Success))
             {
                 return "";
@@ -482,9 +613,9 @@ namespace Assets.Scripts.BattleHandler.Game
         /// <summary>
         /// Shuffle Main Deck, Side Deck, and Extra Deck. Called at the beginning of the game.
         /// </summary>
-        internal void shuffleAllDecks()
+        internal void shuffleAllDecks(int randomSeed)
         {
-            shuffleMainDeck();
+            shuffleMainDeck(randomSeed);
             //shuffleSideDeck();
             //ShuffleExtraDeck();
         }
@@ -516,9 +647,9 @@ namespace Assets.Scripts.BattleHandler.Game
             }
         }
     
-        private void shuffleMainDeck()
+        private void shuffleMainDeck(int randomSeed)
         {
-            MainDeck.ShuffleDeck();
+            MainDeck.ShuffleDeck(randomSeed);
         }
 
     }

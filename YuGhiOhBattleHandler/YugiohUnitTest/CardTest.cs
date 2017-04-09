@@ -182,7 +182,7 @@ namespace YuGhiOhTester.Tests
             expectedTypeCode = 4;
             Assert.IsFalse(card1.IsTypeCard(expectedTypeCode));
         }
-
+        /*
       [TestMethod]
       public void testGetType()
       {

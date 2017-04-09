@@ -38,10 +38,17 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
+<<<<<<< HEAD
       <HintPath>C:\Program Files\Unity HoloLens 5.4.0f3-HTP\Editor\Data\PlaybackEngines\MetroSupport/Tools/UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
       <HintPath>C:/Program Files/Unity HoloLens 5.4.0f3-HTP/Editor/Data/Managed/UnityEditor.dll</HintPath>
+=======
+      <HintPath>C:\Program Files\Unity HoloLens\Editor\Data\PlaybackEngines\MetroSupport/Tools/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>C:/Program Files/Unity HoloLens/Editor/Data/Managed/UnityEditor.dll</HintPath>
+>>>>>>> master
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -195,12 +202,20 @@
      <Compile Include="Assets\Scripts\BattleHandler\Game\ReadOnlyPlayer.cs" />
      <Compile Include="Assets\Scripts\BattleHandler\Game\ZoneEnum.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
+     <Compile Include="Assets\Scripts\EndTurn.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\GameManagerLocal.cs" />
      <Compile Include="Assets\Scripts\GazeGestureManager.cs" />
      <Compile Include="Assets\Scripts\GodCard.cs" />
+     <Compile Include="Assets\Scripts\Local.cs" />
      <Compile Include="Assets\Scripts\MiniSpeechManager.cs" />
      <Compile Include="Assets\Scripts\NetworkManager.cs" />
+<<<<<<< HEAD
+=======
+     <Compile Include="Assets\Scripts\Online.cs" />
+>>>>>>> master
      <Compile Include="Assets\Scripts\Reset.cs" />
+     <Compile Include="Assets\Scripts\Sacrifice.cs" />
      <Compile Include="Assets\Scripts\Seal.cs" />
      <Compile Include="Assets\Scripts\SpeechManager.cs" />
      <Compile Include="Assets\Scripts\TapToPlaceParent.cs" />
@@ -211,6 +226,7 @@
      <Compile Include="Assets\Support\Spatial Mapping\SpatialMapping.cs" />
      <Compile Include="Assets\Support\Underworld\UnderworldReset.cs" />
      <Compile Include="Assets\Support\Underworld\UnderworldSound.cs" />
+<<<<<<< HEAD
      <None Include="Assets\Photon Unity Networking\Demos\DemoBoxes\Resources\eurof_tt.txt" />
      <None Include="Assets\Plugins\release_history.txt" />
      <None Include="Assets\Resources\Monster Cards\Blue-Eyes White Dragon\ReadMe.txt" />
@@ -240,7 +256,42 @@
  </Reference>
  <Reference Include="websocket-sharp">
  <HintPath>C:/Users/Nana/Documents/Yugioh-For-HoloLens/YuGiOh/Assets/Plugins/WebSocket/websocket-sharp.dll</HintPath>
+=======
+     <None Include="Assets\Photon Unity Networking\Demos\MarcoPolo-Tutorial\marcopolo-readme.txt" />
+     <None Include="Assets\Plugins\Photon3Unity3D.xml" />
+     <None Include="Assets\Plugins\release_history.txt" />
+     <None Include="Assets\Resources\Other Resources\Wireframe.shader" />
+     <None Include="Assets\Resources\Monster Cards\Blue-Eyes White Dragon\ReadMe.txt" />
+     <None Include="Assets\Photon Unity Networking\Demos\DemoBoxes\Resources\eurof_tt.txt" />
+     <None Include="Assets\Resources\Other Resources\DebugNormals.shader" />
+     <None Include="Assets\Photon Unity Networking\Demos\DemoPickup\Assets\3dFont\3dText.shader" />
+     <None Include="Assets\Photon Unity Networking\readme.txt" />
+     <None Include="Assets\Resources\Other Resources\Occlusion.shader" />
+     <None Include="Assets\Photon Unity Networking\Demos\DemoRockPaperScissors\Assets\OpenSans\Apache License.txt" />
+     <None Include="Assets\Photon Unity Networking\changelog.txt" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>C:/Program Files/Unity HoloLens/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
+ <Reference Include="UnityEngine.Networking">
+ <HintPath>C:/Program Files/Unity HoloLens/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.HoloLens">
+ <HintPath>C:/Program Files/Unity HoloLens/Editor/Data/UnityExtensions/Unity/UnityHoloLens/Runtime/UnityEngine.HoloLens.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VR">
+ <HintPath>C:/Program Files/Unity HoloLens/Editor/Data/UnityExtensions/Unity/UnityVR/Runtime/UnityEngine.VR.dll</HintPath>
+>>>>>>> master
+ </Reference>
+ <Reference Include="Photon3Unity3D">
+ <HintPath>C:/Users/plasm/Documents/GitHub/Yugioh-For-HoloLens/YuGiOh/Assets/Plugins/Photon3Unity3D.dll</HintPath>
+ </Reference>
+ <Reference Include="websocket-sharp">
+ <HintPath>C:/Users/plasm/Documents/GitHub/Yugioh-For-HoloLens/YuGiOh/Assets/Plugins/WebSocket/websocket-sharp.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{026EECE1-ABE7-B795-D196-5AE8D8D0C67E}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

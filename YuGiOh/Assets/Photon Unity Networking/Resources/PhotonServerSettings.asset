@@ -38,5 +38,18 @@ MonoBehaviour:
   - RequestForPickupItems
   - RequestForPickupTimes
   - SendGame_RPC
+<<<<<<< HEAD
   - TaggedPlayer
+=======
+  - UpdateGame_RPC
+  - Summon_RPC
+  - EndTurn_RPC
+  - Sacrifice_RPC
+  - Spell_RPC
+  - AttackFD_RPC
+  - AttackFU_RPC
+  - AttackLP_RPC
+  - ChangeMode_RPC
+  - Equip_RPC
+>>>>>>> master
   DisableAutoOpenWizard: 1
