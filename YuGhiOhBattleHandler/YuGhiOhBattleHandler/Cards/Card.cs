@@ -75,27 +75,28 @@ namespace YuGhiOhBattleHandler
 
     public enum Types
     {
-        MONSTER,
-        SPELL,
-        TRAP,
-        NORMAL,
-        EFFECT,
-        FUSION,
-        RITUAL,
-        TRAP_MONSTER,
-        SPIRIT,
-        UNION,
-        DUAL,
-        TOKEN,
-        QUICK_PLAY,
-        CONTINUOUS,
-        EQUIP,
-        FIELD,
-        COUNTER,
-        FLIP,
-        TOON,
-        XYZ,
-        PENDULUM       
+        MONSTER = 0x1,
+        SPELL = 0x2,
+        TRAP = 0x4,
+        NORMAL = 0x8,
+        EFFECT = 0x10,
+        FUSION = 0x20,
+        RITUAL = 0x40,
+        TRAP_MONSTER = 0x80,
+        SPIRIT = 0x100,
+        UNION = 0x200,
+        DUAL = 0x400,
+        TOKEN = 0x800,
+        QUICK_PLAY = 0x1000,
+        CONTINUOUS = 0x2000,
+        EQUIP = 0x4000,
+        FIELD = 0x8000,
+        COUNTER = 0x10000,
+        FLIP = 0x20000,
+        TOON = 0x40000,
+        XYZ = 0x80000,
+        PENDULUM = 0x100000,
+        SPSUMMON = 0x200000       
         
     }
 
@@ -236,7 +237,7 @@ namespace YuGhiOhBattleHandler
         public int code;
         public int alias;
         public UInt64 setTypeCode;
-        public UInt32 type;
+        public int type;
         public UInt32 level;
         public UInt32 attr;
         public UInt32 race;
@@ -530,9 +531,31 @@ namespace YuGhiOhBattleHandler
             return false;
         }
 
-        public UInt32 getType()
+        public int GetType()
         {
-            return 0;
+            int result = 0;
+            result = cardData.type;
+
+            List<BaseEffect> effect = FilterEffect((int)effect_codes.EFFECT_ADD_TYPE, false);
+
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result |= effect[i].GetValue(this);
+            }
+
+            effect = FilterEffect((int)effect_codes.EFFECT_REMOVE_TYPE, false);
+            for(int i = 0; i < effect.Count; i++)
+            {
+                result &= ~effect[i].GetValue(this);
+            }
+
+            effect = FilterEffect((int)effect_codes.EFFECT_CHANGE_TYPE, false);
+            for(int i = 0; i < effect.Count; i++)
+            {
+                result = effect[i].GetValue(this);
+            }
+
+            return result;
         }
 
         public int getAtk()

@@ -182,25 +182,75 @@ namespace YuGhiOhTester.Tests
             expectedTypeCode = 4;
             Assert.IsFalse(card1.IsTypeCard(expectedTypeCode));
         }
-        /*
+        
       [TestMethod]
       public void testGetType()
       {
-            uint expectedType = 2;
+            var mockEffect1 = Mock.Create<BaseEffect>();
+            mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
 
-            uint actualType = card1.getType();
+            int expectedType = (int)Types.MONSTER;
+
+            card_data data = new card_data();
+            data.type = (int)Types.MONSTER;
+            card1.CardData = data;
+
+            int actualType = card1.GetType();
 
             Assert.AreEqual(expectedType, actualType);
 
             // test if effect_add_type is used
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns((int)Types.RITUAL);
+
+            BaseEffect effect = mockEffect1.Object;
+            List<BaseEffect> effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+
+            SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_ADD_TYPE, effectList);
+            card1.SingleEffect = list;
+            actualType = card1.GetType();
+            Assert.AreEqual(expectedType + (int)Types.RITUAL, actualType);
+
             // test if effect_remove_type is used
+            data.type = expectedType + (int)Types.RITUAL;
+            card1.CardData = data;
+            effectList.Clear();
+            list.Clear();
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns((int)Types.RITUAL);
+            effect = mockEffect1.Object;
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_REMOVE_TYPE, effectList);
+            card1.SingleEffect = list;
+            actualType = card1.GetType();
+            Assert.AreEqual(expectedType, actualType);
+
             // test if effect_change_type is used
+            effectList.Clear();
+            list.Clear();
+            expectedType = (int)Types.SPELL;
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedType);
+            effect = mockEffect1.Object;
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_CHANGE_TYPE, effectList);
+            card1.SingleEffect = list;
+            actualType = card1.GetType();
+            Assert.AreEqual(expectedType, actualType);
 
-
-      }
-/*
+            //test using invalid effect type (should return data.type)
+            effectList.Clear();
+            list.Clear();
+            expectedType = (int)Types.SPSUMMON;
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_ACTIVATE_COST, effectList);
+            data.type = expectedType;
+            card1.CardData = data;
+            card1.SingleEffect = list;
+            actualType = card1.GetType();
+            Assert.AreEqual(expectedType, actualType);
+        }
+        /*
       [TestMethod]
-
       public void testGetBaseAtk()
       {
             int expectedAtk = 200;
