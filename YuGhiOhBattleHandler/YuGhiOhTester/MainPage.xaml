@@ -209,8 +209,9 @@
                     <TextBlock Text="Lifepoints=" />
                     <TextBlock x:Name="MyLifePointsText" Text="8000"/>
                 </StackPanel>
-                <Button x:Name="EndTurnBtn" Content="End Turn" Tapped="EndTurnBtn_Tapped" />
+              <!--  <Button x:Name="EndTurnBtn" Content="End Turn" Tapped="EndTurnBtn_Tapped" /> -->
                 <Button x:Name="SacrificeBtn" Content="Sacrifice" Tapped="SacrificeBtn_Tapped" />
+                <!--<Button x:Name="PhaseBtn" Content="Phase" Tapped="PhaseBtn_Tapped" /> -->
             </StackPanel>
         </StackPanel>
     </StackPanel>

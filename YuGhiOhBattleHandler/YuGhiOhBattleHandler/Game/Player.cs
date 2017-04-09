@@ -54,12 +54,12 @@ namespace YuGhiOhBattleHandler
         /// <summary>
         /// The cards eligible to be played.
         /// </summary>
-        private List<Object> hand=new List<object>();
+        private List<Object> hand = new List<object>();
 
         /// <summary>
         /// The facedown monster cards the player has played. The face up cards are in m_meReadOnly.
         /// </summary>
-        private List<MonsterCard> faceDownCardsInMonsterZone=new List<MonsterCard>();
+        private List<MonsterCard> faceDownCardsInMonsterZone = new List<MonsterCard>();
 
         /// <summary>
         /// Where monsters/spells/traps go when they die.
@@ -72,7 +72,7 @@ namespace YuGhiOhBattleHandler
         /// <param name="toPlay">The card which is to be summoned</param>
         internal void addFaceDownToMonsterZone(Object toPlay)
         {
-            if((toPlay as MonsterCard).getBattlePosition()==Mode.Attack)
+            if ((toPlay as MonsterCard).getBattlePosition() == Mode.Attack)
             {
                 (toPlay as MonsterCard).ChangeBattlePosition();
             }
@@ -80,12 +80,12 @@ namespace YuGhiOhBattleHandler
             m_meReadOnly.setNumberOfFaceDownCardsInMonsterZone(m_meReadOnly.getNumberOfFaceDownCardsInMonsterZone() + 1);
             hand.Remove(toPlay);
             m_meReadOnly.setCardsInHand(m_meReadOnly.getCardsInHand() - 1);
-            
+
         }
 
         internal void switchFaceDownToFaceUp(MonsterCard toSwitch)
         {
-            if(faceDownCardsInMonsterZone.Contains(toSwitch))
+            if (faceDownCardsInMonsterZone.Contains(toSwitch))
             {
                 faceDownCardsInMonsterZone.Remove(toSwitch);
                 IList<MonsterCard> toSet = m_meReadOnly.getFaceUpMonstersInMonsterZone();
@@ -98,7 +98,7 @@ namespace YuGhiOhBattleHandler
         internal void switchCanAttack(MonsterCard toSwitch)
         {
             IList<MonsterCard> toSet = m_meReadOnly.getFaceUpMonstersInMonsterZone();
-            int index=toSet.IndexOf(toSwitch);
+            int index = toSet.IndexOf(toSwitch);
             toSwitch.setCanAttack(false);
             toSet[index] = toSwitch;
             m_meReadOnly.setFaceUpMonstersInMonsterZone(toSet);
@@ -126,7 +126,7 @@ namespace YuGhiOhBattleHandler
         /// <summary>
         /// The facedown spell and trap cards the player has played. The face up cards are in m_meReadOnly.
         /// </summary>
-        private List<SpellAndTrapCard> faceDownCardsInSpellAndTrapZone=new List<SpellAndTrapCard>();
+        private List<SpellAndTrapCard> faceDownCardsInSpellAndTrapZone = new List<SpellAndTrapCard>();
 
         /// <summary>
         /// This is how the Front End grabs the data to print it to the screen. The Opponent should not be able to access this function although it is public
@@ -222,21 +222,21 @@ namespace YuGhiOhBattleHandler
                     m_meReadOnly.setCardsInHand(m_meReadOnly.getCardsInHand() - 1);
                 }
             }
-            else if(z==Zone.Monster)
+            else if (z == Zone.Monster)
             {
-                if(faceDownCardsInMonsterZone.Contains(c as MonsterCard))
+                if (faceDownCardsInMonsterZone.Contains(c as MonsterCard))
                 {
                     faceDownCardsInMonsterZone.Remove(c as MonsterCard);
                     m_meReadOnly.setNumberOfFaceDownCardsInMonsterZone(m_meReadOnly.getNumberOfFaceDownCardsInMonsterZone() - 1);
                 }
-                else if(m_meReadOnly.getFaceUpMonstersInMonsterZone().Contains(c as MonsterCard))
+                else if (m_meReadOnly.getFaceUpMonstersInMonsterZone().Contains(c as MonsterCard))
                 {
                     IList<MonsterCard> toRemoveFrom = m_meReadOnly.getFaceUpMonstersInMonsterZone();
                     toRemoveFrom.Remove(c as MonsterCard);
                     m_meReadOnly.setFaceUpMonstersInMonsterZone(toRemoveFrom);
                 }
             }
-            else if(z==Zone.SpellTrap)
+            else if (z == Zone.SpellTrap)
             {
                 if (faceDownCardsInSpellAndTrapZone.Contains(c as SpellAndTrapCard))
                 {
@@ -270,7 +270,7 @@ namespace YuGhiOhBattleHandler
         public string EndTurn()
         {
             Game.Result r = myCurrentGame.RequestEndTurn(id);
-            if(r==Game.Result.Success)
+            if (r == Game.Result.Success)
             {
                 return "";
             }
@@ -302,7 +302,7 @@ namespace YuGhiOhBattleHandler
             m_meReadOnly = new ReadOnlyPlayer();
             m_meReadOnly.setUserName(userName);
         }
-        
+
         /// <summary>
         /// Set in the Game Constructor.
         /// </summary>
@@ -359,8 +359,8 @@ namespace YuGhiOhBattleHandler
         {
             if (monsterToSummon is MonsterCard && hand.Contains(monsterToSummon))
             {
-                Game.Result amIAllowedToSummon=myCurrentGame.RequestNormalSummon(id, monsterToSummon,faceDownCardsInMonsterZone.Count+m_meReadOnly.getFaceUpMonstersInMonsterZone().Count);
-                if(amIAllowedToSummon.ToString().Equals("Success"))
+                Game.Result amIAllowedToSummon = myCurrentGame.RequestNormalSummon(id, monsterToSummon, faceDownCardsInMonsterZone.Count + m_meReadOnly.getFaceUpMonstersInMonsterZone().Count);
+                if (amIAllowedToSummon.ToString().Equals("Success"))
                 {
                     return "";
                 }
@@ -389,12 +389,12 @@ namespace YuGhiOhBattleHandler
                 if (stc.getName().Equals("Dark Hole"))
                 {
                     amIAllowedToSummon = myCurrentGame.RequestDarkHole(id);
-                    if(amIAllowedToSummon==Game.Result.Success)
+                    if (amIAllowedToSummon == Game.Result.Success)
                     {
                         SendToGraveYard(spellOrTrapToPlay, Zone.Hand);
                     }
                 }
-                else if(stc.getName().Equals("Red Medicine"))
+                else if (stc.getName().Equals("Red Medicine"))
                 {
                     amIAllowedToSummon = myCurrentGame.RequestRedMedicine(id);
                     if (amIAllowedToSummon == Game.Result.Success)
@@ -418,7 +418,7 @@ namespace YuGhiOhBattleHandler
                         SendToGraveYard(spellOrTrapToPlay, Zone.Hand);
                     }
                 }
-                else if(stc.getName().Equals("Trap Hole"))
+                else if (stc.getName().Equals("Trap Hole"))
                 {
                     amIAllowedToSummon = myCurrentGame.RequestTrapHole(id);
                     if (amIAllowedToSummon == Game.Result.Success)
@@ -451,15 +451,15 @@ namespace YuGhiOhBattleHandler
         public string TryEquip(Object EquipableCard, string nameOfCardToEquipTo)
         {
             bool found = false;
-            if(hand.Contains(EquipableCard))
+            if (hand.Contains(EquipableCard))
             {
-                for(int i=0; i<faceDownCardsInMonsterZone.Count && !found; i++)
+                for (int i = 0; i < faceDownCardsInMonsterZone.Count && !found; i++)
                 {
-                    if(faceDownCardsInMonsterZone[i].getName().Equals(nameOfCardToEquipTo))
+                    if (faceDownCardsInMonsterZone[i].getName().Equals(nameOfCardToEquipTo))
                     {
                         MonsterCard equippingTo = faceDownCardsInMonsterZone[i];
                         found = true;
-                        Game.Result r=myCurrentGame.RequestEquip(id, EquipableCard, ref equippingTo);
+                        Game.Result r = myCurrentGame.RequestEquip(id, EquipableCard, ref equippingTo);
                         if (r == Game.Result.Success)
                         {
                             faceDownCardsInMonsterZone[i] = equippingTo;
@@ -470,7 +470,7 @@ namespace YuGhiOhBattleHandler
                         {
                             return r.ToString();
                         }
-                        
+
                     }
                 }
                 IList<MonsterCard> faceUpMonsters = m_meReadOnly.getFaceUpMonstersInMonsterZone();
@@ -508,13 +508,13 @@ namespace YuGhiOhBattleHandler
         /// <param name="toChangeModeOf">to change to attack mode or defense mode</param>
         internal void GameChangeModeOfCard(MonsterCard toChangeModeOf)
         {
-            if(faceDownCardsInMonsterZone.Contains(toChangeModeOf))
+            if (faceDownCardsInMonsterZone.Contains(toChangeModeOf))
             {
                 int index = faceDownCardsInMonsterZone.IndexOf(toChangeModeOf);
                 toChangeModeOf.ChangeBattlePosition();
                 faceDownCardsInMonsterZone[index] = toChangeModeOf;
             }
-            else if(m_meReadOnly.getFaceUpMonstersInMonsterZone().Contains(toChangeModeOf))
+            else if (m_meReadOnly.getFaceUpMonstersInMonsterZone().Contains(toChangeModeOf))
             {
                 IList<MonsterCard> faceUps = m_meReadOnly.getFaceUpMonstersInMonsterZone();
                 int index = faceUps.IndexOf(toChangeModeOf);
@@ -554,11 +554,11 @@ namespace YuGhiOhBattleHandler
                 return r.ToString();
             }
         }
-        
+
         public string AttackFaceDownOpponent(MonsterCard attackingCard, Mode faceDownCardsMode)
         {
-            Game.Result r= myCurrentGame.RequestAttackOnFaceDownCard(id, attackingCard, faceDownCardsMode);
-            if(r.Equals(Game.Result.Success))
+            Game.Result r = myCurrentGame.RequestAttackOnFaceDownCard(id, attackingCard, faceDownCardsMode);
+            if (r.Equals(Game.Result.Success))
             {
                 return "";
             }
@@ -570,7 +570,7 @@ namespace YuGhiOhBattleHandler
 
         public string AttackFaceUpOpponent(MonsterCard attackingCard, MonsterCard defendingCard)
         {
-            Game.Result r =myCurrentGame.RequestAttack(id, attackingCard, defendingCard);
+            Game.Result r = myCurrentGame.RequestAttack(id, attackingCard, defendingCard);
             if (r.Equals(Game.Result.Success))
             {
                 return "";
@@ -605,13 +605,13 @@ namespace YuGhiOhBattleHandler
             }
         }
 
-        
+
         /// <summary>
         /// Called at the start of the game to make each player's hand 5 cards.
         /// </summary>
         internal void draw5Cards()
         {
-            for(int i=0; i<5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Object cardOnTopOfDeck = m_mainDeck.drawTopCard();
                 hand.Add(cardOnTopOfDeck);
@@ -641,12 +641,12 @@ namespace YuGhiOhBattleHandler
 
         internal void allowMonstersToAttack()
         {
-            for(int i=0; i<faceDownCardsInMonsterZone.Count; i++)
+            for (int i = 0; i < faceDownCardsInMonsterZone.Count; i++)
             {
                 faceDownCardsInMonsterZone[i].setCanAttack(true);
             }
             List<MonsterCard> faceUp = m_meReadOnly.getFaceUpMonstersInMonsterZone() as List<MonsterCard>;
-            for(int i=0; i<faceUp.Count; i++)
+            for (int i = 0; i < faceUp.Count; i++)
             {
                 faceUp[i].setCanAttack(true);
             }

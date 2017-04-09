@@ -871,7 +871,7 @@ namespace YuGhiOhTester
                 }
             }
         }
-
+        /*
         private void EndTurnBtn_Tapped(object sender, TappedRoutedEventArgs e)
         {
             me.EndTurn();
@@ -930,7 +930,7 @@ namespace YuGhiOhTester
             }
             collapseUnused();
         }
-
+        */
         private void placeOppMonsterCardsOnGUI()
         {
             int faceDownCards = me.getOpponent().getNumberOfFaceDownCardsInMonsterZone();
@@ -3236,5 +3236,11 @@ namespace YuGhiOhTester
                 placeMyMonsterCardsOnGUI();
             }
         }
+        /*
+        private void PhaseBtn_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            me.ChangePhase();
+        }
+        */
     }
 }

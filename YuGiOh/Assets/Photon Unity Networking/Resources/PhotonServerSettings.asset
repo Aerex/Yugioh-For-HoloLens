@@ -8,19 +8,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f3758f8f58fdef43803eb9be1df0608, type: 3}
+  m_Script: {fileID: 11500000, guid: 9e4bc58db3f7331498609abf8bb7f67d, type: 3}
   m_Name: PhotonServerSettings
   m_EditorClassIdentifier: 
-  HostType: 1
+  HostType: 0
   Protocol: 0
   ServerAddress: 
   ServerPort: 5055
-  AppID: e37c5ec1-bc60-4c57-8dc5-e92c6ba4a32a
-  PreferredRegion: 1
+  AppID: 
+  PreferredRegion: 0
   EnabledRegions: -1
-  JoinLobby: 1
+  JoinLobby: 0
   EnableLobbyStatistics: 0
   RpcList:
+  - AddChatMessage_RPC
   - Chat
   - ColorRpc
   - DestroyRpc
@@ -36,9 +37,6 @@ MonoBehaviour:
   - PunRespawn
   - RequestForPickupItems
   - RequestForPickupTimes
-  - TaggedPlayer
-  - AddChatMessage_RPC
-  - SendGame
   - SendGame_RPC
-  - UpdateGame_RPC
+  - TaggedPlayer
   DisableAutoOpenWizard: 1

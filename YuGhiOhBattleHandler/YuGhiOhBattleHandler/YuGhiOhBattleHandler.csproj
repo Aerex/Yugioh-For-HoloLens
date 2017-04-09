@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{673033C8-770A-4DDD-A04D-D649BC6D7080}</ProjectGuid>
-    <OutputType>winmdobj</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>YuGhiOhBattleHandler</RootNamespace>
     <AssemblyName>YuGhiOhBattleHandler</AssemblyName>
@@ -112,10 +112,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cards\Card.cs" />
+    <Compile Include="Cards\CardData.cs" />
     <Compile Include="Cards\MonsterCard.cs" />
     <Compile Include="Cards\SpellAndTrapCard.cs" />
+    <Compile Include="Game\Duel.cs" />
+    <Compile Include="Game\Effect.cs" />
+    <Compile Include="Game\Field.cs" />
+    <Compile Include="Game\Interfaces\BaseEffect.cs" />
+    <Compile Include="Game\Interfaces\BaseReader.cs" />
+    <Compile Include="Game\Reader.cs" />
+    <Compile Include="Utility\Action.cs" />
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\MainDeckBuilder.cs" />
+    <Compile Include="Utility\Parser.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\ReadOnlyPlayer.cs" />
     <Compile Include="Utility\Coin.cs" />
@@ -174,6 +183,9 @@
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

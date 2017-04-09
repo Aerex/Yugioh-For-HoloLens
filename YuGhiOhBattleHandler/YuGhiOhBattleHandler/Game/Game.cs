@@ -75,7 +75,7 @@ namespace YuGhiOhBattleHandler
 
         internal Result RequestNormalSummon(int idOfAttacker, Object cardToSummon, int numberOfMonstersAlreadyPlayed)
         {
-            if (player1.id == idOfAttacker && playerWhosTurnItIs == 1 && !playerHasNormalSummonedThisTurn && numberOfMonstersAlreadyPlayed<6 && ((4+sacrifices)>=(cardToSummon as MonsterCard).getLevel()))
+            if (player1.id == idOfAttacker && playerWhosTurnItIs == 1 && !playerHasNormalSummonedThisTurn && numberOfMonstersAlreadyPlayed < 6 && ((4 + sacrifices) >= (cardToSummon as MonsterCard).getLevel()))
             {
                 player1.addFaceDownToMonsterZone(cardToSummon);
                 playerHasNormalSummonedThisTurn = true;
@@ -85,15 +85,15 @@ namespace YuGhiOhBattleHandler
             {
                 return Result.NotYourTurn;
             }
-            else if(!(numberOfMonstersAlreadyPlayed<6))
+            else if (!(numberOfMonstersAlreadyPlayed < 6))
             {
                 return Result.AlreadyPlayedMaxNumberOfMonsters;
             }
-            else if(((4 + sacrifices) < (cardToSummon as MonsterCard).getLevel()))
+            else if (((4 + sacrifices) < (cardToSummon as MonsterCard).getLevel()))
             {
                 return Result.NeedMoreSacrifices;
             }
-            else if(player1.id==idOfAttacker)
+            else if (player1.id == idOfAttacker)
             {
                 return Result.AlreadyNormalSummonedThisTurn;
             }
@@ -103,11 +103,11 @@ namespace YuGhiOhBattleHandler
                 playerHasNormalSummonedThisTurn = true;
                 return Result.Success;
             }
-            else if (player2.id == idOfAttacker && playerWhosTurnItIs==1)
+            else if (player2.id == idOfAttacker && playerWhosTurnItIs == 1)
             {
                 return Result.NotYourTurn;
             }
-            else if(player2.id==idOfAttacker)
+            else if (player2.id == idOfAttacker)
             {
                 return Result.AlreadyNormalSummonedThisTurn;
             }
@@ -170,18 +170,18 @@ namespace YuGhiOhBattleHandler
         {
             if (player1.id == idOfAttacker && playerWhosTurnItIs == 1)
             {
-                IList<MonsterCard> p2cards=player2.getFaceDownCardsInMonsterZone();
+                IList<MonsterCard> p2cards = player2.getFaceDownCardsInMonsterZone();
                 MonsterCard toAttack = null;
                 int i = 0;
-                while(toAttack==null && i<p2cards.Count)
+                while (toAttack == null && i < p2cards.Count)
                 {
-                    if(p2cards[i].getBattlePosition()==m)
+                    if (p2cards[i].getBattlePosition() == m)
                     {
                         toAttack = p2cards[i];
                     }
                 }
-                if(toAttack!=null)
-                { 
+                if (toAttack != null)
+                {
                     return RequestAttack(idOfAttacker, attackingCard, toAttack);
                 }
                 else
@@ -228,33 +228,33 @@ namespace YuGhiOhBattleHandler
         {
             if (player1.id == idOfAttacker && playerWhosTurnItIs == 1)
             {
-                if((player1.getFaceDownCardsInMonsterZone().Contains(attackingCard) || player1.getFaceUpMonstersInMonsterZone().Contains(attackingCard)) && (player2.getFaceDownCardsInMonsterZone().Contains(defendingCard) || player2.getFaceUpMonstersInMonsterZone().Contains(defendingCard)))
+                if ((player1.getFaceDownCardsInMonsterZone().Contains(attackingCard) || player1.getFaceUpMonstersInMonsterZone().Contains(attackingCard)) && (player2.getFaceDownCardsInMonsterZone().Contains(defendingCard) || player2.getFaceUpMonstersInMonsterZone().Contains(defendingCard)))
                 {
-                    if(attackingCard.CanAttack())
+                    if (attackingCard.CanAttack())
                     {
                         player1.switchFaceDownToFaceUp(attackingCard);
                         player2.switchFaceDownToFaceUp(defendingCard);
-                        if (attackingCard.getBattlePosition()==Mode.Attack)
+                        if (attackingCard.getBattlePosition() == Mode.Attack)
                         {
                             int attackingWith = attackingCard.getAttackPoints();
                             int defendingWith = 0;
-                            if(defendingCard.getBattlePosition()==Mode.Attack)
+                            if (defendingCard.getBattlePosition() == Mode.Attack)
                             {
                                 defendingWith = defendingCard.getAttackPoints();
-                                if(attackingWith>defendingWith)
+                                if (attackingWith > defendingWith)
                                 {
                                     int toTakeOffLifePoints = attackingWith - defendingWith;
                                     player2.SendToGraveYard(defendingCard as object, Zone.Monster);
                                     player2.setLifePoints(player2.getLifePoints() - toTakeOffLifePoints);
                                 }
-                                else if(attackingWith==defendingWith)
+                                else if (attackingWith == defendingWith)
                                 {
                                     player1.SendToGraveYard(attackingCard as object, Zone.Monster);
                                     player2.SendToGraveYard(defendingCard as object, Zone.Monster);
                                 }
                                 else
                                 {
-                                    int toTakeOffLifePoints = defendingWith-attackingWith;
+                                    int toTakeOffLifePoints = defendingWith - attackingWith;
                                     player1.SendToGraveYard(attackingCard as object, Zone.Monster);
                                     player1.setLifePoints(player1.getLifePoints() - toTakeOffLifePoints);
                                 }
@@ -270,7 +270,7 @@ namespace YuGhiOhBattleHandler
                                 }
                                 else if (attackingWith == defendingWith)
                                 {
-                                    
+
                                 }
                                 else
                                 {
@@ -642,7 +642,7 @@ namespace YuGhiOhBattleHandler
             player1.SetCurrentGame(this);
             player2.SetCurrentGame(this);
         }
-        
+
         public void StartGame()
         {
             player1.shuffleAllDecks();
@@ -657,14 +657,14 @@ namespace YuGhiOhBattleHandler
             {
                 IList<MonsterCard> faceDownMonsters = player1.getFaceDownCardsInMonsterZone();
                 IList<MonsterCard> faceUpMonsters = player1.getFaceUpMonstersInMonsterZone();
-                while(faceDownMonsters.Count>0)
-                { 
-                    player1.SendToGraveYard(faceDownMonsters[0],Zone.Monster);
+                while (faceDownMonsters.Count > 0)
+                {
+                    player1.SendToGraveYard(faceDownMonsters[0], Zone.Monster);
                     faceDownMonsters = player1.getFaceDownCardsInMonsterZone();
                 }
-                while(faceUpMonsters.Count>0)
+                while (faceUpMonsters.Count > 0)
                 {
-                    player1.SendToGraveYard(faceUpMonsters[0],Zone.Monster);
+                    player1.SendToGraveYard(faceUpMonsters[0], Zone.Monster);
                     faceUpMonsters = player1.getFaceUpMonstersInMonsterZone();
                 }
                 faceDownMonsters = player2.getFaceDownCardsInMonsterZone();
@@ -728,7 +728,7 @@ namespace YuGhiOhBattleHandler
             if (player1.id == idOfAttacker && playerWhosTurnItIs == 1)
             {
                 player1.SendToGraveYard(toSacrifice, Zone.Monster);
-                if(sacrifices==0)
+                if (sacrifices == 0)
                 {
                     sacrifices = 2;
                 }
@@ -822,17 +822,17 @@ namespace YuGhiOhBattleHandler
             if (player1.id == id && playerWhosTurnItIs == 1)
             {
                 int lowestAttack = int.MaxValue;
-                MonsterCard toDestroy=null;
+                MonsterCard toDestroy = null;
                 IList<MonsterCard> faceUpMonsters = player2.getFaceUpMonstersInMonsterZone();
                 foreach (MonsterCard c in faceUpMonsters)
                 {
-                    if(c.getAttackPoints()<lowestAttack)
+                    if (c.getAttackPoints() < lowestAttack)
                     {
                         lowestAttack = c.getAttackPoints();
                         toDestroy = c;
                     }
                 }
-                if(toDestroy!=null)
+                if (toDestroy != null)
                 {
                     player2.SendToGraveYard(toDestroy, Zone.Monster);
                 }
@@ -902,9 +902,9 @@ namespace YuGhiOhBattleHandler
             if (player1.id == id && playerWhosTurnItIs == 1 && equipableCard is SpellAndTrapCard)
             {
                 SpellAndTrapCard stc = equipableCard as SpellAndTrapCard;
-                if(stc.getName()== "Legendary Sword")
+                if (stc.getName() == "Legendary Sword")
                 {
-                    if(monsterCard.getYuGhiOhType().ToUpper().Contains("WARRIOR"))
+                    if (monsterCard.getYuGhiOhType().ToUpper().Contains("WARRIOR"))
                     {
                         monsterCard.setAttackPoints(monsterCard.getAttackPoints() + 300);
                         monsterCard.setDefensePoints(monsterCard.getDefensePoints() + 300);
@@ -914,7 +914,7 @@ namespace YuGhiOhBattleHandler
                         return Result.IneligibleMonsterType;
                     }
                 }
-                else if(stc.getName() == "Beast Fangs")
+                else if (stc.getName() == "Beast Fangs")
                 {
                     if (monsterCard.getYuGhiOhType().ToUpper().Contains("BEAST"))
                     {

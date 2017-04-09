@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Media.Imaging;
 namespace YuGhiOhBattleHandler
 {
 
-    internal enum Icon
+    public enum Icon
     {
         Equip,
         Field,
@@ -34,6 +34,8 @@ namespace YuGhiOhBattleHandler
     {
         private Icon m_icon;
         private bool m_isPlayed;
+        private List<Object> m_cards = new List<Object>();
+
         private Card c=new Card();
         internal SpellAndTrapCard(string cardName, CardAttributeOrType attributeOrType, Icon ico, string cardDescription, long cardNumber, BitmapImage bi)
         {
@@ -45,11 +47,26 @@ namespace YuGhiOhBattleHandler
             m_isPlayed = false;
             c.setBitmapImage(bi);
         }
+
+        public void addSelectedCard(Object card)
+        {
+            m_cards.Add(card);
+        }
+
+        public IList<Object> getSelectedCards()
+        {
+            return m_cards;
+        }
+
         public string getDescription()
         {
             return c.getCardDescrip();
         }
 
+        public Icon getIcon()
+        {
+            return m_icon;
+        }
 
         public string getName()
         {
