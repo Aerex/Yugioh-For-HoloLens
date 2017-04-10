@@ -563,7 +563,7 @@ namespace YuGhiOhBattleHandler
             return 0;
         }
 
-        public int getBaseAtk()
+        public int GetBaseAtk()
         {
             return 0;
         }

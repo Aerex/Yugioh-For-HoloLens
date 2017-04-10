@@ -249,32 +249,54 @@ namespace YuGhiOhTester.Tests
             actualType = card1.GetType();
             Assert.AreEqual(expectedType, actualType);
         }
-        /*
+        
       [TestMethod]
       public void testGetBaseAtk()
       {
+            var mockEffect1 = Mock.Create<BaseEffect>();
+            mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
+
             int expectedAtk = 200;
+            int newAtk = 100;
+            int expectedDef = 300;
             card_data data = new card_data();
 
             data.atk = expectedAtk;
+            data.def = expectedDef;
             data.type = (int)Types.MONSTER;
             card1.CardState.location = Locations.HAND;
             card1.setStatus((int)Status.SUMMONING);
             card1.CardData = data;
 
-            Assert.AreEqual(expectedAtk, card1.getBaseAtk());
+            Assert.AreEqual(expectedAtk, card1.GetBaseAtk());
 
             card1.setStatus((int)Status.SPSUMMON_STEP);
 
-            Assert.AreEqual(expectedAtk, card1.getBaseAtk());
+            Assert.AreEqual(expectedAtk, card1.GetBaseAtk());
 
             // test if effect changes base atk
-            // test if effect swaps base atk with def 
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(newAtk);
+            BaseEffect effect = mockEffect1.Object;
+            List<BaseEffect> effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_SET_BASE_ATTACK, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(newAtk, card1.GetBaseAtk());
 
+
+            // test if effect swaps base atk with def 
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedDef);
+            effect = mockEffect1.Object;
+            list.Add((int)effect_codes.EFFECT_SWAP_BASE_AD, false);
+            card1.SingleEffect = list;
+            Assert.AreEqual(expectedDef, card1.GetBaseAtk());
+
+            //test if card is not a monster
             data.type = (int)Types.QUICK_PLAY;
             card1.CardData = data;
 
-            Assert.AreEqual(0, card1.getBaseAtk());
+            Assert.AreEqual(0, card1.GetBaseAtk());
       }
 
       [TestMethod]
