@@ -288,7 +288,9 @@ namespace YuGhiOhTester.Tests
             // test if effect swaps base atk with def 
             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedDef);
             effect = mockEffect1.Object;
-            list.Add((int)effect_codes.EFFECT_SWAP_BASE_AD, false);
+            effectList.Clear();
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_SWAP_BASE_AD, effectList);
             card1.SingleEffect = list;
             Assert.AreEqual(expectedDef, card1.GetBaseAtk());
 
@@ -298,7 +300,7 @@ namespace YuGhiOhTester.Tests
 
             Assert.AreEqual(0, card1.GetBaseAtk());
       }
-
+        /*
       [TestMethod]
       public void testGetAtk()
       {
