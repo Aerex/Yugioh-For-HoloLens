@@ -260,7 +260,7 @@ namespace YuGhiOhTester.Tests
             int newAtk = 100;
             int expectedDef = 300;
             card_data data = new card_data();
-
+          
             data.atk = expectedAtk;
             data.def = expectedDef;
             data.type = (int)Types.MONSTER;
@@ -268,11 +268,11 @@ namespace YuGhiOhTester.Tests
             card1.setStatus((int)Status.SUMMONING);
             card1.CardData = data;
 
-            Assert.AreEqual(expectedAtk, card1.GetBaseAtk());
+            Assert.AreEqual(expectedAtk, card1.GetBaseAtk(false));
 
             card1.setStatus((int)Status.SPSUMMON_STEP);
 
-            Assert.AreEqual(expectedAtk, card1.GetBaseAtk());
+            Assert.AreEqual(expectedAtk, card1.GetBaseAtk(false));
 
             // test if effect changes base atk
             mockEffect1.Setup(s => s.GetValue(card1)).Returns(newAtk);
@@ -282,7 +282,8 @@ namespace YuGhiOhTester.Tests
             SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
             list.Add((int)effect_codes.EFFECT_SET_BASE_ATTACK, effectList);
             card1.SingleEffect = list;
-            Assert.AreEqual(newAtk, card1.GetBaseAtk());
+            card1.CardState.location = Locations.MAIN_ZONE;
+            Assert.AreEqual(newAtk, card1.GetBaseAtk(false));
 
 
             // test if effect swaps base atk with def 
@@ -292,34 +293,219 @@ namespace YuGhiOhTester.Tests
             effectList.Add(effect);
             list.Add((int)effect_codes.EFFECT_SWAP_BASE_AD, effectList);
             card1.SingleEffect = list;
-            Assert.AreEqual(expectedDef, card1.GetBaseAtk());
+            Assert.AreEqual(expectedDef, card1.GetBaseAtk(false));
 
             //test if card is not a monster
             data.type = (int)Types.QUICK_PLAY;
             card1.CardData = data;
-
-            Assert.AreEqual(0, card1.GetBaseAtk());
-      }
-        /*
-      [TestMethod]
-      public void testGetAtk()
-      {
-            int expectedAtk = 300;
-            card_data data = new card_data();
-
-            data.type = (int)Types.MONSTER;
             card1.CardState.location = Locations.HAND;
-            card1.setStatus((int)Status.SUMMONING);
+
+            Assert.AreEqual(0, card1.GetBaseAtk(false));
+      }
+      
+     [TestMethod]
+     public void testCalAtkDef()
+     {
+            var mockEffect1 = Mock.Create<BaseEffect>();
+            mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
+            int updateAtk = 2000;
+            int setAtk = 3000;
+            int updateDef = 2000;
+            int setDef = 1000;
+            int negAtk = -50;
+            int negDef = -40;
+            card_data data = new card_data();
+            data.atk = 200;
+            data.def = 300;
+            data.type = (int)Types.MONSTER;
             card1.CardData = data;
+            card1.CardState.location = Locations.HAND;
 
-            Assert.AreEqual(expectedAtk, card1.getBaseAtk());
+            //test update oositive atk
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(updateAtk);
+            BaseEffect effect = mockEffect1.Object; 
+            List<BaseEffect> effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_UPDATE_ATTACK, effectList);
+            card1.SingleEffect = list;
 
-            card1.setStatus((int)Status.SPSUMMON_STEP);
+            Assert.AreEqual(data.atk + updateAtk, card1.CalcAtkDef(true));
 
-            Assert.AreEqual(expectedAtk, card1.getAtk());
+            list.Clear();
+            effectList.Clear();
 
+            //test update negative atk
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(negAtk);
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_UPDATE_ATTACK, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(data.atk + negAtk, card1.CalcAtkDef(true));
+
+            list.Clear();
+            effectList.Clear();
+
+
+            // test set atk
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(setAtk);
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_SET_ATTACK, effectList);
+            card1.SingleEffect = list;
+
+            Assert.AreEqual(setAtk, card1.CalcAtkDef(true));
+            list.Clear();
+            effectList.Clear();
+
+            // test update def
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(updateDef);
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_UPDATE_DEFENSE, effectList);
+            card1.SingleEffect = list;
+
+            Assert.AreEqual(data.def + updateDef, card1.CalcAtkDef(false));
+            list.Clear();
+            effectList.Clear();
+
+            // test set def
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(setDef);
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_SET_DEFENSE, effectList);
+            card1.SingleEffect = list;
+
+            Assert.AreEqual(setDef, card1.CalcAtkDef(false));
+            list.Clear();
+            effectList.Clear();
+
+            //test update negative def
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(negDef);
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_UPDATE_DEFENSE, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(data.def + negDef, card1.CalcAtkDef(false));
+
+            list.Clear();
+            effectList.Clear();
+
+            // swap atk with defense
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_SWAP_AD, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(data.def, card1.CalcAtkDef(true));
+
+            // reverse effects for adding
+
+            list.Clear();
+            effectList.Clear();
+
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(negAtk);
+            effect = mockEffect1.Object;
+            effectList = new List<BaseEffect>();
+            effectList.Add(effect);
+            list = new SortedList<int, List<BaseEffect>>();
+            list.Add((int)effect_codes.EFFECT_UPDATE_ATTACK, effectList);
+            list.Add((int)effect_codes.EFFECT_REVERSE_UPDATE, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(data.atk + -1*negAtk, card1.CalcAtkDef(true));
+
+        }
+
+        [TestMethod]
+        public void testGetLevel()
+        {
+            var mockEffect1 = Mock.Create<BaseEffect>();
+            mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
+            List<BaseEffect> effectList = new List<BaseEffect>();
+            BaseEffect effect = null;
+            SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+            int expectedLevel = 2;
+            int updatedLevel = 1;
+            int newLevel = 5;
+            card_data data = new card_data();
+            data.level = expectedLevel;
+            data.type = (int)Types.MONSTER;
+            card1.CardData = data;
+            card1.CardState.location = Locations.HAND;
+
+            Assert.AreEqual(expectedLevel, card1.GetLevel());
+
+            // test if effect update level
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(updatedLevel);
+            effect = mockEffect1.Object;
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_UPDATE_LEVEL, effectList);
+            card1.SingleEffect = list;
+
+            Assert.AreEqual(expectedLevel + updatedLevel, card1.GetLevel());
+            list.Clear();
+            effectList.Clear();
+
+            // test if effect change level
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(newLevel);
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_CHANGE_LEVEL, effectList);
+            card1.SingleEffect = list;
+
+            Assert.AreEqual(newLevel, card1.GetLevel());
+            list.Clear();
+            effectList.Clear();
+
+            // test if effect change level final
+            // test if effect ritual level change
+
+            //tset if no status level
+            card1.CardStatus = (int)Status.NO_LEVEL;
+            Assert.AreEqual(0, card1.GetLevel());
+        }
+        /*
+       [TestMethod]
+       public void testGetAtk()
+        {
+             var mockEffect1 = Mock.Create<BaseEffect>();
+             mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
+             List<BaseEffect> effectList = new List<BaseEffect>();
+             SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+             BaseEffect effect = null; 
+             int expectedAtk = 300;
+             int expectedDef = 500;
+             card_data data = new card_data();
+
+             data.type = (int)Types.MONSTER;
+             data.atk = expectedAtk;
+             data.def = expectedDef;
+             card1.CardState.location = Locations.HAND;
+             card1.setStatus((int)Status.SUMMONING);
+             card1.CardData = data;
+
+             Assert.AreEqual(expectedAtk, card1.GetAtk());
+    
             // test if effect swap attack and def
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedDef);
+            effect = mockEffect1.Object;
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_SWAP_AD, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(expectedDef, card1.GetAtk());
+
             // test if effect update attack
+
             // test if effect set attack
             // test if set attack final??
             // test if swap attack final
@@ -328,160 +514,145 @@ namespace YuGhiOhTester.Tests
             // test if set base defense
 
             data.type = (int)Types.QUICK_PLAY;
-            card1.CardData = data;
+             card1.CardData = data;
 
-            Assert.AreEqual(0, card1.getBaseAtk());
-     }
+             Assert.AreEqual(0, card1.getBaseAtk());
+      }
+ /*
+      [TestMethod]
+      public void testBaseDef()
+      {
 
-     [TestMethod]
-     public void testBaseDef()
-     {
+             int expectedDef = 200;
+             card_data data = new card_data();
 
-            int expectedDef = 200;
-            card_data data = new card_data();
+             data.def = expectedDef;
+             data.type = (int)Types.MONSTER;
+             card1.CardState.location = Locations.HAND;
+             card1.setStatus((int)Status.SUMMONING);
+             card1.CardData = data;
 
-            data.def = expectedDef;
-            data.type = (int)Types.MONSTER;
-            card1.CardState.location = Locations.HAND;
-            card1.setStatus((int)Status.SUMMONING);
-            card1.CardData = data;
+             Assert.AreEqual(expectedDef, card1.getBaseDef());
 
-            Assert.AreEqual(expectedDef, card1.getBaseDef());
+             card1.setStatus((int)Status.SPSUMMON_STEP);
 
-            card1.setStatus((int)Status.SPSUMMON_STEP);
+             Assert.AreEqual(expectedDef, card1.getBaseDef());
 
-            Assert.AreEqual(expectedDef, card1.getBaseDef());
+             // test if effect changes base def
+             // test if effect swaps base atk with def 
 
-            // test if effect changes base def
-            // test if effect swaps base atk with def 
+             data.type = (int)Types.QUICK_PLAY;
+             card1.CardData = data;
 
-            data.type = (int)Types.QUICK_PLAY;
-            card1.CardData = data;
+             Assert.AreEqual(0, card1.getBaseDef());
+         }
 
-            Assert.AreEqual(0, card1.getBaseDef());
-        }
+         [TestMethod]
+         public void testDef()
+         {
+             int expectedDef = 400;
+             card_data data = new card_data();
 
-        [TestMethod]
-        public void testDef()
-        {
-            int expectedDef = 400;
-            card_data data = new card_data();
+             data.type = (int)Types.MONSTER;
+             card1.CardState.location = Locations.HAND;
+             card1.setStatus((int)Status.SUMMONING);
+             card1.CardData = data;
 
-            data.type = (int)Types.MONSTER;
-            card1.CardState.location = Locations.HAND;
-            card1.setStatus((int)Status.SUMMONING);
-            card1.CardData = data;
+             Assert.AreEqual(expectedDef, card1.getDef());
 
-            Assert.AreEqual(expectedDef, card1.getDef());
+             card1.setStatus((int)Status.SPSUMMON_STEP);
 
-            card1.setStatus((int)Status.SPSUMMON_STEP);
+             Assert.AreEqual(expectedDef, card1.getDef());
 
-            Assert.AreEqual(expectedDef, card1.getDef());
+             // test if effect swap attack and def
+             // test if effect update def
+             // test if effect set def
+             // test if set def final??
+             // test if swap def final
+             // test if swap base attakc with base def
+             // test if set base attak
+             // test if set base defense
 
-            // test if effect swap attack and def
-            // test if effect update def
-            // test if effect set def
-            // test if set def final??
-            // test if swap def final
-            // test if swap base attakc with base def
-            // test if set base attak
-            // test if set base defense
+             data.type = (int)Types.QUICK_PLAY;
+             card1.CardData = data;
 
-            data.type = (int)Types.QUICK_PLAY;
-            card1.CardData = data;
+             Assert.AreEqual(0, card1.getDef());
+         }
 
-            Assert.AreEqual(0, card1.getDef());
-        }
+        
 
-        [TestMethod]
-        public void testGetLevel()
-        {
-            uint expectedLevel = 2;
-            card_data data = new card_data();
-            data.level = expectedLevel;
+         [TestMethod]
+         public void testGetAttr()
+         {
+             uint expectedAttr = (uint)Attributes.DARK;
+             card_data data = new card_data();
+             data.type = (int)Types.MONSTER;
+             data.attr = expectedAttr;
 
-            // test if effect update level
-            // test if effect change level
-            // test if effect change level final
-            // test if effect ritual level change
+             card1.CardData = data;
 
-            card1.CardData = data;
+             Assert.AreEqual(expectedAttr, card1.getAttr());
 
-            Assert.AreEqual(expectedLevel, card1.getLevel());
-        }
+             // test if effect add attribute
+             // test if effect remote attribute
+             // tset if effect change attribute
+             // test if effect change fusion attribute
+         }
 
-        [TestMethod]
-        public void testGetAttr()
-        {
-            uint expectedAttr = (uint)Attributes.DARK;
-            card_data data = new card_data();
-            data.type = (int)Types.MONSTER;
-            data.attr = expectedAttr;
+         [TestMethod]
+         public void testGetRace()
+         {
+             uint expectedRace = (uint)Races.DRAGON;
+             card_data data = new card_data();
+             data.type = (int)Types.MONSTER;
+             data.race = expectedRace;
 
-            card1.CardData = data;
+             Assert.AreEqual(expectedRace, card1.getRace());
 
-            Assert.AreEqual(expectedAttr, card1.getAttr());
+             // test if effect add race
+             // test if effect remove race
+             // test if effect change race
 
-            // test if effect add attribute
-            // test if effect remote attribute
-            // tset if effect change attribute
-            // test if effect change fusion attribute
-        }
 
-        [TestMethod]
-        public void testGetRace()
-        {
-            uint expectedRace = (uint)Races.DRAGON;
-            card_data data = new card_data();
-            data.type = (int)Types.MONSTER;
-            data.race = expectedRace;
+             data.type = (int)Types.QUICK_PLAY;
+             card1.CardData = data;
 
-            Assert.AreEqual(expectedRace, card1.getRace());
+             Assert.AreEqual(0, card1.getRace());
 
-            // test if effect add race
-            // test if effect remove race
-            // test if effect change race
-          
+         }
 
-            data.type = (int)Types.QUICK_PLAY;
-            card1.CardData = data;
+         [TestMethod]
+         public void testEquip()
+         {
 
-            Assert.AreEqual(0, card1.getRace());
+             Assert.IsTrue(card1.Equip(card2, false));
+             card1.EquipingTarget = card2;
 
-        }
+             Assert.IsFalse(card1.Equip(card2, false));
 
-        [TestMethod]
-        public void testEquip()
-        {
-           
-            Assert.IsTrue(card1.Equip(card2, false));
-            card1.EquipingTarget = card2;
+         }
 
-            Assert.IsFalse(card1.Equip(card2, false));
+         [TestMethod]
+         public void testUnEquip()
+         {
+             card1.EquipingTarget = card2;
+             Assert.IsTrue(card1.UnEquip());
 
-        }
+             card1.EquipingTarget = null;
 
-        [TestMethod]
-        public void testUnEquip()
-        {
-            card1.EquipingTarget = card2;
-            Assert.IsTrue(card1.UnEquip());
+             Assert.IsFalse(card1.UnEquip());
+         }
 
-            card1.EquipingTarget = null;
+         [TestMethod]
+         public void testApplyFieldEffect()
+         {
+             card1.CardState.controller = PlayerTypes.NONE;
+             Assert.IsFalse(card1.applyFieldEffect());
 
-            Assert.IsFalse(card1.UnEquip());
-        }
-
-        [TestMethod]
-        public void testApplyFieldEffect()
-        {
-            card1.CardState.controller = PlayerTypes.NONE;
-            Assert.IsFalse(card1.applyFieldEffect());
-
-            card1.CardState.controller = PlayerTypes.Player1;
-            Assert.IsTrue(card1.applyFieldEffect());
-        }
-        */
+             card1.CardState.controller = PlayerTypes.Player1;
+             Assert.IsTrue(card1.applyFieldEffect());
+         }
+         */
 
         [TestMethod]
         public void testIsAffectedByEffect()

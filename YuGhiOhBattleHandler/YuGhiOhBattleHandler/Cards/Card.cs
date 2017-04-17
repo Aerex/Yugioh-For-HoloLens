@@ -238,7 +238,7 @@ namespace YuGhiOhBattleHandler
         public int alias;
         public UInt64 setTypeCode;
         public int type;
-        public UInt32 level;
+        public int level;
         public UInt32 attr;
         public UInt32 race;
         public Int32 atk;
@@ -558,19 +558,80 @@ namespace YuGhiOhBattleHandler
             return result;
         }
 
-        public int getAtk()
+        public int GetAtk()
         {
-            return 0;
+            if(cardState.location != Locations.MAIN_ZONE && !Convert.ToBoolean((cardData.type & (int)Types.MONSTER))
+                && !Convert.ToBoolean(GetType() & (int)Types.MONSTER))
+            {
+                return 0;
+            }
+
+            return CalcAtkDef(true);
         }
 
-        public int GetBaseAtk()
+        public int GetBaseAtk(Boolean isSwap)
         {
-            return 0;
+            if(cardState.location != Locations.MAIN_ZONE && !(Convert.ToBoolean(cardData.type & (int)Types.MONSTER))
+                && !(Convert.ToBoolean(GetType() & (int)Types.MONSTER))){
+                return 0;
+            }
+            if(cardState.location != Locations.MAIN_ZONE)
+            {
+                return cardData.atk;
+            }
+            if (!isSwap && IsAffectedByEffect((int)effect_codes.EFFECT_SWAP_BASE_AD) != null)
+            {
+                return GetBaseDef(true);
+            }
+
+            if(cardData.atk < 0)
+            {
+                cardData.atk = 0;
+            }
+            List<BaseEffect> effects = FilterEffect((int)effect_codes.EFFECT_SET_BASE_ATTACK, false);
+            for(int i = 0; i < effects.Count; i++)
+            {
+                cardData.atk = effects[i].GetValue(this);
+                if(cardData.atk < 0)
+                {
+                    cardData.atk = 0;
+                }
+            }
+
+            return cardData.atk;
         }
 
-        public int getBaseDef()
+        public int GetBaseDef(Boolean isSwap)
         {
-            return 0;
+            if (cardState.location != Locations.MAIN_ZONE && !(Convert.ToBoolean(cardData.type & (int)Types.MONSTER))
+                && !(Convert.ToBoolean(GetType() & (int)Types.MONSTER)))
+            {
+                return 0;
+            }
+            if (cardState.location != Locations.MAIN_ZONE)
+            {
+                return cardData.def;
+            }
+            if (!isSwap && IsAffectedByEffect((int)effect_codes.EFFECT_SWAP_BASE_AD) != null)
+            {
+                return GetBaseAtk(true);
+            }
+
+            if (cardData.def < 0)
+            {
+                cardData.def = 0;
+            }
+            List<BaseEffect> effects = FilterEffect((int)effect_codes.EFFECT_SET_BASE_DEFENSE, false);
+            for (int i = 0; i < effects.Count; i++)
+            {
+                cardData.def = effects[i].GetValue(this);
+                if (cardData.def < 0)
+                {
+                    cardData.def = 0;
+                }
+            }
+
+            return cardData.def;
         }
 
         public int getDef()
@@ -584,14 +645,110 @@ namespace YuGhiOhBattleHandler
             return !(isStatus((int)Status.SUMMONING) && effect.Code != (int)effect_flag.EFFECT_FLAG_CANNOT_DISABLE);
         }
 
-        public void calcAtkDef()
+        public int CalcAtkDef(Boolean isAtk)
         {
+            int baseAtk = GetBaseAtk(false);
+            int baseDef = GetBaseDef(false);
+            int updateAtk = 0;
+            int updateDef = 0;
+            int result = 0;
 
+            bool reverse = IsAffectedByEffect((int)effect_codes.EFFECT_REVERSE_UPDATE) != null ? true : false;
+            List<BaseEffect> swapList = null;
+            if (isAtk)
+            {
+                List<BaseEffect> setAtkList = FilterEffect((int)effect_codes.EFFECT_SET_ATTACK, false);
+                for (int i = 0; i < setAtkList.Count; i++)
+                {
+                    baseAtk = setAtkList[i].GetValue(this);
+                }
+
+                List<BaseEffect> updateAtkList = FilterEffect((int)effect_codes.EFFECT_UPDATE_ATTACK, false);
+
+                for(int i = 0; i < updateAtkList.Count; i++)
+                {
+                    updateAtk += updateAtkList[i].GetValue(this);
+                }
+
+                swapList = FilterEffect((int)effect_codes.EFFECT_SWAP_AD, false);
+                for (int i = 0; i < swapList.Count; i++)
+                {
+                    baseAtk = baseDef + updateDef;
+
+                }
+
+                if (reverse)
+                {
+                    result = baseAtk - updateAtk;
+                } else
+                {
+                    result = baseAtk + updateAtk;
+                }
+
+            }
+            else
+            {
+                List<BaseEffect> setDefList = FilterEffect((int)effect_codes.EFFECT_SET_DEFENSE, false);
+                for(int i = 0; i < setDefList.Count; i++)
+                {
+                    baseDef = setDefList[i].GetValue(this);
+                }
+
+                List<BaseEffect> updateDefList = FilterEffect((int)effect_codes.EFFECT_UPDATE_DEFENSE, false);
+                for(int i = 0; i < updateDefList.Count; i++)
+                {
+                    updateDef += updateDefList[i].GetValue(this);
+                }
+
+                swapList = FilterEffect((int)effect_codes.EFFECT_SWAP_AD, false);
+                for (int i = 0; i < swapList.Count; i++)
+                {
+                    baseAtk = baseDef + updateDef;
+
+                }
+
+                if (reverse)
+                {
+                    result = baseDef - updateDef;
+                }
+                else
+                {
+                    result = baseDef + updateDef;
+                }
+            }
+
+            return result < 0 ? 0 : result;
         }
 
-        public UInt32 getLevel()
+        public int GetLevel()
         {
-            return 0;
+            int level = cardData.level;
+            if (Convert.ToBoolean(CardStatus & (int)Status.NO_LEVEL) || cardState.location != Locations.MAIN_ZONE
+                && !Convert.ToBoolean(cardData.type & (int)Types.MONSTER) && !Convert.ToBoolean(GetType() & (int)Types.MONSTER))
+            {
+                return 0;
+            }
+
+            List<BaseEffect> changeLevel = FilterEffect((int)effect_codes.EFFECT_CHANGE_LEVEL, false);
+            List<BaseEffect> updateLevel = FilterEffect((int)effect_codes.EFFECT_UPDATE_LEVEL, false);
+
+            for (int i = 0; i < changeLevel.Count; i++)
+            {
+                level = changeLevel[i].GetValue(this);
+            }
+
+            for(int i = 0; i < updateLevel.Count; i++)
+            {
+                level += updateLevel[i].GetValue(this);
+            }
+
+            if(level < 1 && Convert.ToBoolean(GetType() & (int)Types.MONSTER))
+            {
+                level = 1;
+            }
+
+            return level;
+            
         }
 
         public UInt32 getRank()
