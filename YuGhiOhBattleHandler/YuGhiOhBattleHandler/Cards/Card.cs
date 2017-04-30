@@ -239,7 +239,7 @@ namespace YuGhiOhBattleHandler
         public UInt64 setTypeCode;
         public int type;
         public int level;
-        public UInt32 attr;
+        public int attr;
         public UInt32 race;
         public Int32 atk;
         public Int32 def;
@@ -350,8 +350,8 @@ namespace YuGhiOhBattleHandler
     {
         //private SortedList<UInt32, Effect> effectContainer;
        
-        private List<Card> equipingCards;
-        public List<Card> EquipingCards
+        private SortedList<int, Card> equipingCards;
+        public SortedList<int, Card> EquipingCards
         {
             get { return equipingCards; }
             set { equipingCards = value; }
@@ -417,9 +417,31 @@ namespace YuGhiOhBattleHandler
         //private Effect uniqueEffect;
         private Card equipingTarget;
 
-        public object getAttr()
+        public int GetAttr()
         {
-            throw new NotImplementedException();
+            int result = 0;
+            result = cardData.type;
+
+            List<BaseEffect> effect = FilterEffect((int)effect_codes.EFFECT_ADD_ATTRIBUTE, false);
+
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result |= effect[i].GetValue(this);
+            }
+
+            effect = FilterEffect((int)effect_codes.EFFECT_REMOVE_ATTRIBUTE, false);
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result &= ~effect[i].GetValue(this);
+            }
+
+            effect = FilterEffect((int)effect_codes.EFFECT_CHANGE_ATTRIBUTE, false);
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result = effect[i].GetValue(this);
+            }
+
+            return result;
         }
 
         private Card preEquipTarget;
@@ -431,9 +453,32 @@ namespace YuGhiOhBattleHandler
 
         private CardAttributeOrType m_attribute;
 
-        public object getRace()
+        public object GetRace()
         {
-            throw new NotImplementedException();
+
+            int result = 0;
+            result = cardData.type;
+
+            List<BaseEffect> effect = FilterEffect((int)effect_codes.EFFECT_ADD_RACE, false);
+
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result |= effect[i].GetValue(this);
+            }
+
+            effect = FilterEffect((int)effect_codes.EFFECT_REMOVE_RACE, false);
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result &= ~effect[i].GetValue(this);
+            }
+
+            effect = FilterEffect((int)effect_codes.EFFECT_CHANGE_RACE, false);
+            for (int i = 0; i < effect.Count; i++)
+            {
+                result = effect[i].GetValue(this);
+            }
+
+            return result;
         }
 
         private long m_cardNumber;
@@ -793,7 +838,8 @@ namespace YuGhiOhBattleHandler
 
         public bool Equip(Card target, bool sendMsg)
         {
-            return false;
+           
+            
         }
 
         public bool UnEquip()
@@ -984,9 +1030,11 @@ namespace YuGhiOhBattleHandler
                 }
             }
 
-            for(int i = 0; i < equipingCards.Count; i++)
+            IList<int> keys = equipingCards.Keys; 
+
+            foreach(int key in keys)
             {
-                equipEffectForCode =  equipingCards[i].equipEffect.TryGetValue(code, out output) ? output : new List<BaseEffect>();
+                equipEffectForCode =  equipingCards[key].equipEffect.TryGetValue(code, out output) ? output : new List<BaseEffect>();
                 for (int j = 0; j < equipEffectForCode.Count; j++)
                 {
                     effect = equipEffectForCode[j];

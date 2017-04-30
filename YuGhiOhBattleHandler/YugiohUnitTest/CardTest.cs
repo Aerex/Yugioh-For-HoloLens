@@ -484,6 +484,7 @@ namespace YuGhiOhTester.Tests
              SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
              BaseEffect effect = null; 
              int expectedAtk = 300;
+             int updateAtk = 700;
              int expectedDef = 500;
              card_data data = new card_data();
 
@@ -503,8 +504,16 @@ namespace YuGhiOhTester.Tests
             list.Add((int)effect_codes.EFFECT_SWAP_AD, effectList);
             card1.SingleEffect = list;
             Assert.AreEqual(expectedDef, card1.GetAtk());
+            list.Clear();
+            effectList.Clear();
 
             // test if effect update attack
+            mockEffect1.Setup(s => s.GetValue(card1)).Returns(updateAtk);
+            effect = mockEffect1.Object;
+            effectList.Add(effect);
+            list.Add((int)effect_codes.EFFECT_UPDATE_ATTACK, effectList);
+            card1.SingleEffect = list;
+            Assert.AreEqual(expectedDef, card1.GetAtk());
 
             // test if effect set attack
             // test if set attack final??
@@ -579,45 +588,91 @@ namespace YuGhiOhTester.Tests
              Assert.AreEqual(0, card1.getDef());
          }
 
-        
+        */
 
          [TestMethod]
          public void testGetAttr()
          {
-             uint expectedAttr = (uint)Attributes.DARK;
+             var mockEffect1 = Mock.Create<BaseEffect>();
+             mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
+             List<BaseEffect> effectList = new List<BaseEffect>();
+             BaseEffect effect = null;
+             SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+        
+             int expectedAttr = (int)Attributes.DARK;
              card_data data = new card_data();
              data.type = (int)Types.MONSTER;
-             data.attr = expectedAttr;
+             data.attr = (int)Attributes.WATER;
 
              card1.CardData = data;
 
-             Assert.AreEqual(expectedAttr, card1.getAttr());
+             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedAttr);
+             effectList.Add(effect);
+             list.Add((int)effect_codes.EFFECT_ADD_ATTRIBUTE, effectList);
+             card1.SingleEffect = list;
 
-             // test if effect add attribute
-             // test if effect remote attribute
-             // tset if effect change attribute
-             // test if effect change fusion attribute
-         }
+             Assert.AreEqual(data.attr + expectedAttr, card1.GetAttr());
+             list.Clear();
+             effectList.Clear();
 
+             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedAttr);
+             effectList.Add(effect);
+             list.Add((int)effect_codes.EFFECT_REMOVE_ATTRIBUTE, effectList);
+             card1.SingleEffect = list;
+             Assert.AreEqual(data.attr, card1.GetAttr());
+             list.Clear();
+             effectList.Clear();
+
+             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedAttr);
+             effectList.Add(effect);
+             list.Add((int)effect_codes.EFFECT_CHANGE_ATTRIBUTE, effectList);
+             card1.SingleEffect = list;
+             Assert.AreEqual(expectedAttr, card1.GetAttr());
+
+        }
+        
          [TestMethod]
          public void testGetRace()
          {
-             uint expectedRace = (uint)Races.DRAGON;
+             var mockEffect1 = Mock.Create<BaseEffect>();
+             mockEffect1.Setup(s => s.IsAvailable()).Returns(true);
+             List<BaseEffect> effectList = new List<BaseEffect>();
+             BaseEffect effect = null;
+             SortedList<int, List<BaseEffect>> list = new SortedList<int, List<BaseEffect>>();
+
+             int expectedRace = (int)Races.DRAGON;
              card_data data = new card_data();
              data.type = (int)Types.MONSTER;
-             data.race = expectedRace;
+             data.race = (int)Races.BEAST;
 
-             Assert.AreEqual(expectedRace, card1.getRace());
+             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedRace);
+             effectList.Add(effect);
+             list.Add((int)effect_codes.EFFECT_ADD_ATTRIBUTE, effectList);
+             card1.SingleEffect = list;
+             Assert.AreEqual(data.race + expectedRace, card1.GetRace());
+             list.Clear();
+             effectList.Clear();
 
-             // test if effect add race
-             // test if effect remove race
-             // test if effect change race
+             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedRace);
+             effectList.Add(effect);
+             list.Add((int)effect_codes.EFFECT_REMOVE_RACE, effectList);
+             card1.SingleEffect = list;
+             Assert.AreEqual(data.race, card1.GetRace());
+             list.Clear();
+             effectList.Clear();
 
+             mockEffect1.Setup(s => s.GetValue(card1)).Returns(expectedRace);
+             effectList.Add(effect);
+             list.Add((int)effect_codes.EFFECT_CHANGE_RACE, effectList);
+             card1.SingleEffect = list;
+             Assert.AreEqual(expectedRace, card1.GetRace());
+             list.Clear();
+             effectList.Clear();
 
              data.type = (int)Types.QUICK_PLAY;
              card1.CardData = data;
 
-             Assert.AreEqual(0, card1.getRace());
+             Assert.AreEqual(0, card1.GetRace());
 
          }
 
@@ -631,7 +686,7 @@ namespace YuGhiOhTester.Tests
              Assert.IsFalse(card1.Equip(card2, false));
 
          }
-
+/*
          [TestMethod]
          public void testUnEquip()
          {
@@ -665,7 +720,7 @@ namespace YuGhiOhTester.Tests
             mockEffect1.SetupGet(s => s.Code).Returns(expectedCode);
             mockEffect1.SetupGet(s => s.ID).Returns(1);
 
-            card1.EquipingCards = new List<Card>();
+            card1.EquipingCards = new SortedList<int, Card>();
             BaseEffect effect = null;
 
             List<BaseEffect> effect1CardList = new List<BaseEffect>();
@@ -765,7 +820,7 @@ namespace YuGhiOhTester.Tests
             mockEffect2.Setup(s => s.IsFlag((int)effect_flag.EFFECT_FLAG_SINGLE_RANGE)).Returns(false);
             mockEffect2.Setup(s => s.IsTarget(card1)).Returns(true);
             mockEffect2.SetupGet(s => s.Code).Returns((int)effect_codes.EFFECT_ADD_RACE);
-            card1.EquipingCards = new List<Card>();
+            card1.EquipingCards = new SortedList<int, Card>();
            
             List<BaseEffect> actualList = null;
             List<BaseEffect> effect1CardList = new List<BaseEffect>();
@@ -825,8 +880,8 @@ namespace YuGhiOhTester.Tests
             equipCard1.EquipEffect = effectList;
             data.code = 123;
             equipCard1.CardData = data;
-            List<Card> equipCards = new List<Card>();
-            equipCards.Add(equipCard1);
+            SortedList<int, Card> equipCards = new SortedList<int, Card>();
+            equipCards.Add(equipCard1.CardData.code, equipCard1);
             card1.EquipingCards = equipCards;
             actualList = card1.FilterEffect(expectedCode, true);
 
